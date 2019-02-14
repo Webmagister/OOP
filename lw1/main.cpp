@@ -58,5 +58,5 @@ int main(int argc, char *argv[])
         outputFile << str << std::endl;
     }
 
-    return 1;
+    return 0;
 }
