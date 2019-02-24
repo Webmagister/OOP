@@ -15,10 +15,13 @@
 void replaceAllSubstring(std::string &str, const std::string &needle, const std::string &replace)
 {
     size_t startPosition = 0;
-    while ((startPosition = str.find(needle, startPosition)) != std::string::npos)
+    if (!needle.empty())
     {
-        str.replace(startPosition, needle.length(), replace);
-        startPosition += replace.length();
+        while ((startPosition = str.find(needle, startPosition)) != std::string::npos)
+        {
+            str.replace(startPosition, needle.length(), replace);
+            startPosition += replace.length();
+        }
     }
 }
 
