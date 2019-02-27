@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-PROGRAM="./lw1"
+PROGRAM="./replace"
 OUT=$(mktemp)
 INPUT_DATA_FOLDER="tests"
 CORRECT_OUT_FOLDER="correctOutput"

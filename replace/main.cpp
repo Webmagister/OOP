@@ -9,57 +9,83 @@
 
 #include <iostream>
 #include <fstream>
-#include <sstream>
 #include <string>
 
-void replaceAllSubstring(std::string &str, const std::string &needle, const std::string &replace)
+struct InputParams
+{
+    std::ifstream inputFile;
+    std::ofstream outputFile;
+    std::string needle;
+    std::string replace;
+};
+
+void ReplaceAllSubstring(std::string &str, const std::string &needle, const std::string &replace)
 {
     size_t startPosition = 0;
-    if (!needle.empty())
+    size_t replaceLength = replace.length();
+
+    while ((startPosition = str.find(needle, startPosition)) != std::string::npos)
     {
-        while ((startPosition = str.find(needle, startPosition)) != std::string::npos)
-        {
-            str.replace(startPosition, needle.length(), replace);
-            startPosition += replace.length();
-        }
+        str.replace(startPosition, needle.length(), replace);
+        startPosition += replaceLength;
     }
 }
 
-int main(int argc, char *argv[])
+bool GetInputParams(InputParams &inputParams, int argc, char *argv[])
 {
     if (argc < 5)
     {
         std::cout << "There are not enough arg." << std::endl;
-        return 1;
+        return false;
     }
 
     if (static_cast<std::string>(argv[1]) == static_cast<std::string>(argv[2]))
     {
         std::cout << "Files is equal." << std::endl;
-        return 1;
+        return false;
     }
 
-    std::ifstream inputFile(argv[1]);
-    std::ofstream outputFile(argv[2]);
+    inputParams.inputFile.open(argv[1]);
+    inputParams.outputFile.open(argv[2]);
 
-    if (!inputFile.is_open() || !outputFile.is_open())
+    if (!inputParams.inputFile.is_open() || !inputParams.outputFile.is_open())
     {
         std::cout << "File does not open." << std::endl;
+        return false;
+    }
+
+
+    inputParams.needle = argv[3];
+    inputParams.replace = argv[4];
+
+    return true;
+}
+
+void ProcessFile(InputParams &inputParams)
+{
+    std::string str;
+
+    while (std::getline(inputParams.inputFile, str))
+    {
+        if (!inputParams.needle.empty())
+        {
+            ReplaceAllSubstring(str, inputParams.needle, inputParams.replace);
+        }
+
+        inputParams.outputFile << str << std::endl;
+    }
+}
+
+int main(int argc, char *argv[])
+{
+    InputParams inputParams;
+
+    if (!GetInputParams(inputParams, argc, argv))
+    {
         return 1;
     }
 
-    const std::string needle = static_cast<std::string>(argv[3]);
-    const std::string replace = static_cast<std::string>(argv[4]);
-
-    while (!inputFile.eof())
-    {
-        std::string str;
-        std::getline(inputFile, str);
-
-        replaceAllSubstring(str, needle, replace);
-
-        outputFile << str << std::endl;
-    }
+    ProcessFile(inputParams);
 
     return 0;
 }
