@@ -1,5 +1,4 @@
 #include "Car.hpp"
-#include <string>
 #include <iostream>
 
 int main(int argc, char *argv[])
@@ -13,21 +12,8 @@ int main(int argc, char *argv[])
 
         if (command == "Info")
         {
-            Direction direction = car.GetDirection();
-            std::cout << "Направление: ";
-            if (direction == Direction::forward)
-            {
-                std::cout << "Вперёд";
-            }
-            else if (direction == Direction::reverse)
-            {
-                std::cout << "Назад";
-            }
-            else
-            {
-                std::cout << "На месте";
-            }
-            std::cout << std::endl;
+            std::string direction = car.GetDirection();
+            std::cout << "Направление: " << direction << std::endl;
             std::cout << "Скорость: " << car.GetSpeed() << std::endl;
             std::cout << "Передача: " << car.GetGear() << std::endl;
 

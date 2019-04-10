@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 enum class Direction
 {
     reverse,
@@ -28,10 +30,13 @@ public:
 
     bool IsEngineOn() const;
 
-    Direction GetDirection() const;
+    void SetDirection();
+
+    std::string GetDirection() const;
 
 private:
     int m_currGear = 0;
     int m_currSpeed = 0;
+    Direction m_direction = Direction::stand;
     bool m_engineOnTurn = false;
 };

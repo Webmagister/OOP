@@ -1,4 +1,3 @@
-#include <iostream>
 #include "Car.hpp"
 
 bool IsSpeedInRange(int expectedGear, int minSpeed, int maxSpeed, int speed, int gear)
@@ -9,6 +8,7 @@ bool IsSpeedInRange(int expectedGear, int minSpeed, int maxSpeed, int speed, int
 bool IsSpeedInGear(int gear, int speed)
 {
     return IsSpeedInRange(-1, 0, 20, speed, gear) ||
+           IsSpeedInRange(0, -20, 150, speed, gear) ||
            IsSpeedInRange(1, 0, 30, speed, gear) ||
            IsSpeedInRange(2, 20, 50, speed, gear) ||
            IsSpeedInRange(3, 30, 60, speed, gear) ||
@@ -40,45 +40,46 @@ bool CCar::TurnOffEngine()
 
 bool CCar::SetGear(int gear)
 {
+    if (!m_engineOnTurn && gear != 0)
+    {
+        return false;
+    }
     if (gear == m_currGear)
     {
         return true;
     }
-    if (m_engineOnTurn)
+    if (gear == -1 && m_currSpeed != 0)
     {
-        if (gear == 0)
-        {
-            m_currGear = 0;
-            return true;
-        }
-        else if (gear == -1)
-        {
-            if ((m_currGear == 0 || m_currGear == 1) && (m_currSpeed == 0))
-            {
-                m_currGear = -1;
-                return true;
-            }
-        }
-        else if (IsSpeedInGear(gear, m_currSpeed))
-        {
-            m_currGear = gear;
-            return true;
-        }
+        return false;
+    }
+    if (gear == 1 && m_direction == Direction::reverse && m_currSpeed != 0)
+    {
+        return false;
     }
 
-    return false;
+    if (!IsSpeedInGear(gear, m_currSpeed))
+    {
+        return false;
+    }
+
+    m_currGear = gear;
+
+    SetDirection();
+
+    return true;
 }
 
 bool CCar::SetSpeed(int speed)
 {
-    if (m_engineOnTurn && (IsSpeedInGear(m_currGear, speed) || (m_currGear == 0 && abs(m_currSpeed) >= speed)))
+    if (m_currGear == 0 && speed > m_currSpeed)
     {
-        if (m_currGear == -1)
-        {
-            speed = -speed;
-        }
+        return false;
+    }
+    if (m_engineOnTurn && IsSpeedInGear(m_currGear, speed))
+    {
         m_currSpeed = speed;
 
+        SetDirection();
         return true;
     }
 
@@ -87,7 +88,7 @@ bool CCar::SetSpeed(int speed)
 
 int CCar::GetSpeed() const
 {
-    return std::abs(m_currSpeed);
+    return m_currSpeed;
 }
 
 int CCar::GetGear() const
@@ -100,16 +101,43 @@ bool CCar::IsEngineOn() const
     return m_engineOnTurn;
 }
 
-Direction CCar::GetDirection() const
+void CCar::SetDirection()
 {
-    if (m_currSpeed > 0)
+    if (m_currGear == -1 && m_currSpeed != 0)
     {
-        return Direction::forward;
-    }
-    if (m_currSpeed < 0)
-    {
-        return Direction::reverse;
+        m_direction = Direction::reverse;
+
+        return;
     }
 
-    return Direction::stand;
+    if (m_currGear == 0 && m_direction == Direction::reverse && m_currSpeed != 0)
+    {
+        m_direction = Direction::reverse;
+
+        return;
+    }
+
+    if (m_currSpeed == 0)
+    {
+        m_direction = Direction::stand;
+
+        return;
+    }
+
+    m_direction = Direction::forward;
+}
+
+std::string CCar::GetDirection() const
+{
+    switch (m_direction)
+    {
+        case Direction::stand:
+            return "stand";
+        case Direction::reverse:
+            return "reverse";
+        case Direction::forward:
+            return "forward";
+        default:
+            return "";
+    }
 }
